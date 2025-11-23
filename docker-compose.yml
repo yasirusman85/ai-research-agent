@@ -1,0 +1,30 @@
+services:
+  # Service 1: The FastAPI Backend
+  backend:
+    build: .
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    networks:
+      - ai-network
+
+  # Service 2: The Streamlit Frontend
+  frontend:
+    build: .
+    command: streamlit run frontend.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"
+    environment:
+      # This tells frontend to talk to "backend" service defined above
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - ai-network
+
+# Create a private network so they can talk to each other
+networks:
+  ai-network:
+    driver: bridge
