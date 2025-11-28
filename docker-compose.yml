@@ -1,26 +1,41 @@
 services:
   # Service 1: The FastAPI Backend
   backend:
-    build: .
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    build: ./backend
+    command: daphne -b 0.0.0.0 -p 8000 config.asgi:application
     ports:
       - "8000:8000"
     env_file:
       - .env
+    depends_on:
+      - postgres
     networks:
       - ai-network
 
-  # Service 2: The Streamlit Frontend
-  frontend:
-    build: .
-    command: streamlit run frontend.py --server.port 8501 --server.address 0.0.0.0
-    ports:
-      - "8501:8501"
+  # Service 2: Postgres Database
+  postgres:
+    image: postgres:15
     environment:
-      # This tells frontend to talk to "backend" service defined above
-      - BACKEND_URL=http://backend:8000
-    depends_on:
-      - backend
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: agent_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ai-network
+
+  # Service 3: React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     networks:
       - ai-network
 
@@ -28,3 +43,6 @@ services:
 networks:
   ai-network:
     driver: bridge
+
+volumes:
+  postgres_data:

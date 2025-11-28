@@ -1,0 +1,15 @@
+django
+django-cors-headers
+daphne
+python-dotenv
+langchain-groq
+langchain-community
+langchain-core
+langgraph
+langgraph-checkpoint-postgres
+psycopg[binary]
+asyncpg
+ddgs
+httpx
+pydantic
+psycopg-pool
