@@ -93,3 +93,6 @@ async def close_graph():
     """Close the DB pool."""
     print("Closing DB connection for LangGraph...")
     await pool.close()
+
+
+#test
